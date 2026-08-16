@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Srećan Rođendan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; min-height: 100%;
+    background: radial-gradient(circle at 50% 20%, #2b1b3d 0%, #120c1e 60%, #08060d 100%);
+    color: #f4e9ff;
+    font-family: 'Poppins', sans-serif;
+    overflow-x: hidden;
+  }
+  .screen {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 16px;
+    text-align: center;
+  }
+  .hidden { display: none !important; }
+
+  /* --- Start dugme (torta) --- */
+  #cakeBtn {
+    background: none; border: none; padding: 0; cursor: pointer;
+    transition: opacity 0.6s ease, filter 0.6s ease;
+  }
+  #cakeBtn img {
+    width: 220px; max-width: 60vw;
+    filter: drop-shadow(0 0 25px rgba(255, 170, 200, 0.5));
+    transition: transform 0.2s ease;
+  }
+  #cakeBtn:active img { transform: scale(0.95); }
+  #cakeBtn.disabled {
+    pointer-events: none;
+    opacity: 0.25;
+    filter: grayscale(1);
+  }
+  #startText {
+    font-family: 'Dancing Script', cursive;
+    font-size: 2rem;
+    margin-top: 14px;
+    color: #ffd6ec;
+    transition: opacity 0.5s ease;
+  }
+  #startText.fadeOut { opacity: 0; }
+
+  /* --- Instrukcija --- */
+  #instruction {
+    font-family: 'Dancing Script', cursive;
+    font-size: 1.8rem;
+    color: #ffe08a;
+    margin-bottom: 26px;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+  #instruction.show { opacity: 1; }
+
+  @keyframes pop {
+    from { transform: scale(0.6); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  /* --- Ispisana reč --- */
+  #wordDisplay {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    min-height: 160px;
+  }
+  .word-line {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    min-height: 70px;
+  }
+  .word-line img {
+    height: 58px;
+    filter: drop-shadow(0 0 6px rgba(255,255,255,0.2));
+    animation: pop 0.35s ease;
+  }
+  /* Slovo koje čeka klik - malo veće i "živo" */
+  .word-line img.active {
+    height: 70px;
+    cursor: pointer;
+    filter: drop-shadow(0 0 16px rgba(255,255,255,0.4));
+    animation: pop 0.4s ease, pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+  }
+  .word-line img.active:active { transform: scale(0.92); }
+
+  /* --- Finalna poruka --- */
+  #finalMessage {
+    font-family: 'Dancing Script', cursive;
+    font-size: 2.6rem;
+    color: #ffe6f6;
+    margin-top: 40px;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+    text-shadow: 0 0 20px rgba(255, 180, 220, 0.6);
+  }
+  #finalMessage.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="screen">
+
+  <!-- POČETNI EKRAN -->
+  <button id="cakeBtn">
+    <img src="images/cake.jpg" alt="Torta">
+  </button>
+  <div id="startText">Pritisni me</div>
+
+  <!-- IGRA SA SLOVIMA -->
+  <div id="instruction">Pritisni slovo</div>
+
+  <div id="wordDisplay">
+    <div class="word-line" id="line1"></div>
+    <div class="word-line" id="line2"></div>
+  </div>
+
+  <!-- FINALNA PORUKA -->
+  <div id="finalMessage">Pogledaj sanduče 🎁</div>
+
+</div>
+
+<script>
+  // Niz slova. "line" 1 = SREĆAN, "line" 2 = ROĐENDAN.
+  // Ako neko slovo ne odgovara, samo promeni redosled/putanju slike ovde.
+  const sequence = [
+    { letter: 'S', img: 'images/s1.jpg',  line: 1 },
+    { letter: 'R', img: 'images/r1.jpg',  line: 1 },
+    { letter: 'E', img: 'images/e1.jpg',  line: 1 },
+    { letter: 'Ć', img: 'images/c1.jpg',  line: 1 },
+    { letter: 'A', img: 'images/a1.jpg',  line: 1 },
+    { letter: 'N', img: 'images/n1.jpg',  line: 1 },
+    { letter: 'R', img: 'images/r2.jpg',  line: 2 },
+    { letter: 'O', img: 'images/o1.jpg',  line: 2 },
+    { letter: 'Đ', img: 'images/dj1.jpg', line: 2 },
+    { letter: 'E', img: 'images/e2.webp', line: 2 },
+    { letter: 'N', img: 'images/n2.jpg',  line: 2 },
+    { letter: 'D', img: 'images/d1.png',  line: 2 },
+    { letter: 'A', img: 'images/a1.jpg',  line: 2 },
+    { letter: 'N', img: 'images/n3.jpg',  line: 2 },
+  ];
+
+  const cakeBtn = document.getElementById('cakeBtn');
+  const startText = document.getElementById('startText');
+  const instruction = document.getElementById('instruction');
+  const line1 = document.getElementById('line1');
+  const line2 = document.getElementById('line2');
+  const finalMessage = document.getElementById('finalMessage');
+
+  let index = 0;
+
+  function showNextLetter() {
+    const item = sequence[index];
+    const img = document.createElement('img');
+    img.src = item.img;
+    img.alt = item.letter;
+    img.className = 'active';
+    img.addEventListener('click', onLetterClick);
+    (item.line === 1 ? line1 : line2).appendChild(img);
+  }
+
+  function onLetterClick(e) {
+    const img = e.currentTarget;
+    img.classList.remove('active');
+    img.removeEventListener('click', onLetterClick);
+
+    index++;
+
+    if (index < sequence.length) {
+      showNextLetter();
+    } else {
+      instruction.classList.remove('show');
+      setTimeout(() => finalMessage.classList.add('show'), 300);
+    }
+  }
+
+  cakeBtn.addEventListener('click', () => {
+    cakeBtn.classList.add('disabled');
+    startText.classList.add('fadeOut');
+    instruction.classList.add('show');
+    showNextLetter();
+  });
+</script>
+
+</body>
+</html>
